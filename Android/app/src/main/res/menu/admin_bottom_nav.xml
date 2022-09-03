@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/bottom_nav_real_data"
+        android:title="Real Time Data"
+        android:icon="@drawable/realtimeicon"
+        app:cnb_textColor="#FF9800"
+        app:cnb_iconColor="#FF9800" />
+
+    <item
+        android:id="@+id/bottom_nav_data"
+        android:title="Data"
+        android:icon="@drawable/charticon"
+        app:cnb_textColor="#FF9800"
+        app:cnb_iconColor="#FF9800"/>
+
+    <item
+        android:id="@+id/bottom_nav_contact"
+        android:title="Contact"
+        android:icon="@drawable/emergencyicon"
+        app:cnb_textColor="#FF9800"
+        app:cnb_iconColor="#FF9800"/>
+</menu>
