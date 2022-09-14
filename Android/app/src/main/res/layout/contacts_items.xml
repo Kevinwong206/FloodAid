@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="170dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="8dp"
+    app:cardCornerRadius="8dp"
+    android:layout_margin="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="133dp">
+
+        <ImageView
+            android:id="@+id/imageContact"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.011"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvOfficeName"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/imageContact"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvStateName"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginTop="2dp"
+            android:text=""
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageContact" />
+
+        <ImageView
+            android:id="@+id/contactIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+
+            app:layout_constraintStart_toEndOf="@+id/imageContact"
+            app:layout_constraintTop_toBottomOf="@+id/tvOfficeName"
+            app:srcCompat="@drawable/phonicon" />
+
+
+        <TextView
+            android:id="@+id/tvContact"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/black"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="12sp"
+
+            app:layout_constraintStart_toEndOf="@+id/contactIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvOfficeName" />
+
+        <TextView
+            android:id="@+id/distanceTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Distance:"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/imageContact"
+            app:layout_constraintTop_toBottomOf="@+id/contactIcon" />
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="120dp"
+            android:layout_height="17dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/distanceTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvContact" />
+
+        <ImageView
+            android:id="@+id/addressIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/imageContact"
+            app:layout_constraintTop_toBottomOf="@+id/distanceTitle"
+            app:srcCompat="@drawable/addressicon" />
+
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="225dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/addressIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvDistance" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_gravity="bottom">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/btCall"
+                android:layout_width="140dp"
+                android:layout_height="36dp"
+                android:backgroundTint="#22CC29"
+                android:text="Call"
+                android:layout_marginRight="5dp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/btNavigate"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btNavigate"
+                android:layout_width="140dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="0dp"
+                android:backgroundTint="#7687BA"
+                android:text="Navigate"
+                android:layout_marginLeft="5dp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="@+id/btCall"
+                app:layout_constraintHorizontal_bias="0.005"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btDelete"
+                android:layout_width="140dp"
+                android:layout_height="36dp"
+                android:backgroundTint="#FF0000"
+                android:text="Delete"
+                android:layout_marginRight="5dp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/btEdit"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btEdit"
+                android:visibility="invisible"
+                android:layout_width="140dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="0dp"
+                android:backgroundTint="#1D49CC"
+                android:layout_marginLeft="5dp"
+                android:text="Edit"
+                app:layout_constraintEnd_toEndOf="@+id/btDelete"
+                app:layout_constraintHorizontal_bias="0.005"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
