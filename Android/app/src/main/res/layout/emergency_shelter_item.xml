@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="205dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="8dp"
+    app:cardCornerRadius="8dp"
+    android:layout_margin="16dp"
+    android:id="@+id/shelterItems">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="173dp">
+
+        <ImageView
+            android:id="@+id/imageShelter"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.011"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvShelterName"
+            android:layout_width="214dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/imageShelter"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <ImageView
+            android:id="@+id/contactIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="6dp"
+            app:layout_constraintStart_toEndOf="@+id/imageShelter"
+            app:layout_constraintTop_toBottomOf="@+id/tvShelterName"
+            app:srcCompat="@drawable/phonicon" />
+
+        <TextView
+            android:id="@+id/tvContact"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/black"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="12sp"
+
+            app:layout_constraintStart_toEndOf="@+id/contactIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvShelterName" />
+
+        <TextView
+            android:id="@+id/distanceTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="20dp"
+            android:text="Distance:"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/btnMap"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageShelter"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="55dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="7dp"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/addressIcon"
+            app:layout_constraintHorizontal_bias="0.166"
+            app:layout_constraintStart_toEndOf="@+id/distanceTitle"
+            app:layout_constraintTop_toBottomOf="@+id/imageShelter" />
+
+        <ImageView
+            android:id="@+id/addressIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toEndOf="@+id/imageShelter"
+            app:layout_constraintTop_toBottomOf="@+id/capacityTitle"
+            app:srcCompat="@drawable/addressicon" />
+
+        <TextView
+            android:id="@+id/tvAddress"
+            android:layout_width="216dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/addressIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvMax" />
+
+        <Button
+            android:id="@+id/btnMap"
+            android:layout_width="110dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="5dp"
+            android:text="View In Map"
+            android:textSize="10sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.011"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/distanceTitle" />
+
+        <TextView
+            android:id="@+id/capacityTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="Capacity :"
+            android:textColor="@color/black"
+            android:textSize="13dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/imageShelter"
+            app:layout_constraintTop_toBottomOf="@+id/contactIcon" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="56dp"
+            android:layout_height="59dp"
+            android:layout_marginStart="12dp"
+            android:indeterminateOnly="false"
+            android:progressDrawable="@drawable/circle"
+            app:layout_constraintStart_toEndOf="@+id/tvMax"
+            app:layout_constraintTop_toBottomOf="@+id/tvContact" />
+
+        <TextView
+            android:id="@+id/tvProgressBar"
+            android:layout_width="33dp"
+            android:layout_height="18dp"
+            android:text=""
+            android:textAlignment="center"
+            android:textSize="13dp"
+            app:layout_constraintBottom_toBottomOf="@+id/progressBar"
+            app:layout_constraintEnd_toEndOf="@+id/progressBar"
+            app:layout_constraintStart_toStartOf="@+id/progressBar"
+            app:layout_constraintTop_toTopOf="@+id/progressBar" />
+
+        <TextView
+            android:id="@+id/tvCurrent"
+            android:layout_width="30dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="4dp"
+            android:text=""
+            android:textSize="13dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvAddress"
+            app:layout_constraintStart_toEndOf="@+id/capacityTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvContact"
+            app:layout_constraintVertical_bias="0.533" />
+
+        <TextView
+            android:id="@+id/slash"
+            android:layout_width="8dp"
+            android:layout_height="15dp"
+            android:text="/"
+            android:textSize="13dp"
+            app:layout_constraintBottom_toTopOf="@+id/tvAddress"
+            app:layout_constraintStart_toEndOf="@+id/tvCurrent"
+            app:layout_constraintTop_toBottomOf="@+id/tvContact"
+            app:layout_constraintVertical_bias="0.521" />
+
+        <TextView
+            android:id="@+id/tvMax"
+            android:layout_width="30dp"
+            android:layout_height="16dp"
+            android:layout_marginTop="23dp"
+            android:text=""
+            android:textSize="13dp"
+            app:layout_constraintStart_toEndOf="@+id/slash"
+            app:layout_constraintTop_toBottomOf="@+id/tvContact" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_gravity="bottom">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/btCall"
+                android:layout_width="140dp"
+                android:layout_height="36dp"
+                android:layout_marginRight="5dp"
+                android:backgroundTint="#22CC29"
+                android:text="Call"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/btNavigate"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btNavigate"
+                android:layout_width="140dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="0dp"
+                android:backgroundTint="#7687BA"
+                android:text="Navigate"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="@+id/btCall"
+                app:layout_constraintHorizontal_bias="0.005"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btDelete"
+                android:layout_width="140dp"
+                android:layout_height="36dp"
+                android:layout_marginRight="5dp"
+                android:backgroundTint="#FF0000"
+                android:text="Delete"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/btEdit"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/btEdit"
+                android:layout_width="140dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="0dp"
+                android:visibility="invisible"
+                android:backgroundTint="#1D49CC"
+                android:text="Edit"
+                app:layout_constraintEnd_toEndOf="@+id/btDelete"
+                app:layout_constraintHorizontal_bias="0.005"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
