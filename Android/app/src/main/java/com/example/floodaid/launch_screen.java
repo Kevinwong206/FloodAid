@@ -32,6 +32,8 @@ public class launch_screen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent serviceIntent = new Intent (this, BackgroundService.class);
+        startService(serviceIntent);
         setContentView(R.layout.activity_launch_screen);
         signIn = findViewById(R.id.signInBtn);
         signUp = findViewById(R.id.signUpBtn);

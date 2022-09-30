@@ -65,6 +65,7 @@ public class DonationFragment extends Fragment {
         donationArrayList = new ArrayList<DonationGetter>();
         mDonationAdapter = new DonationAdapter(getContext(),donationArrayList);
 
+        donationArrayList.clear();
         EventChangeListener ();
         rvDonation.setAdapter(mDonationAdapter);
 

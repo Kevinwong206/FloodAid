@@ -47,7 +47,7 @@ public class DonationAdapter extends RecyclerView.Adapter<DonationAdapter.MyView
     public void onBindViewHolder(@NonNull DonationAdapter.MyViewHolder holder, int position) {
         DonationGetter donationGetter = donationArrayList.get(position);
 
-        address = donationGetter.address;
+        address = donationGetter.pickupAddress;
         condition = donationGetter.condition;
         donatorName = donationGetter.donatorName;
         donatorPhone = donationGetter.donatorPhone;
@@ -66,12 +66,12 @@ public class DonationAdapter extends RecyclerView.Adapter<DonationAdapter.MyView
                 Bundle bundle = new Bundle();
                 bundle.putString("donatorName",donationGetter.donatorName);
                 bundle.putString("donatorPhone",donationGetter.donatorPhone);
-                bundle.putString("address", donationGetter.address);
+                bundle.putString("address", donationGetter.pickupAddress);
                 bundle.putString("condition",donationGetter.condition);
                 bundle.putString("productTitle",donationGetter.productTitle);
                 bundle.putString("quantity",donationGetter.quantity);
                 bundle.putString("imageUrL",donationGetter.imageURL);
-                bundle.putString("id",donationGetter.itemId);
+                bundle.putString("id",donationGetter.itemUID);
                 i.putExtras(bundle);
                 context.startActivity(i);
             }

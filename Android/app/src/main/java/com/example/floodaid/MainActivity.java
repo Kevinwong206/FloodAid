@@ -113,14 +113,14 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case R.id.bottom_nav_data:
-                        fragment = new DataHistoryDateFragment();
+                        fragment = new DateDetailsFragment();
                         break;
 
                     case R.id.bottom_nav_donation:
                         fragment = new DonationFragment();
                         break;
 
-                    case R.id.bottom_nav_contact:
+                    case R.id.bottom_nav_emergency:
                         fragment = new ContactFragment();
                         break;
                 }
@@ -141,10 +141,10 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case R.id.bottom_nav_data:
-                        fragment = new DataHistoryDateFragment();
+                        fragment = new DateDetailsFragment();
                         break;
 
-                    case R.id.bottom_nav_contact:
+                    case R.id.bottom_nav_emergency:
                         fragment = new ContactFragment();
                         break;
                 }

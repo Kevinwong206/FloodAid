@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DataHistoryDateFragment" >
+    tools:context=".DateDetailsFragment"
+    android:background="@color/white">
 
 
     <androidx.appcompat.widget.SearchView
@@ -65,7 +66,8 @@
         android:layout_height="54dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="8dp"
-        android:text="Sort"
+        android:text="Donated Items"
+        android:textSize="10dp"
         app:layout_constraintStart_toEndOf="@+id/searchView"
         app:layout_constraintTop_toTopOf="parent" />
 

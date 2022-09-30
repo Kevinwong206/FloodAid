@@ -14,25 +14,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class DataHistoryDateAdapter extends RecyclerView.Adapter<DataHistoryDateAdapter.MyViewHolder> {
+public class DateDetailsAdapter extends RecyclerView.Adapter<DateDetailsAdapter.MyViewHolder> {
     Context context;
-    ArrayList<DataHistoryDateGetter> list;
+    ArrayList<DateDetailsGetter> list;
 
-    public DataHistoryDateAdapter(Context context, ArrayList<DataHistoryDateGetter> list) {
+    public DateDetailsAdapter(Context context, ArrayList<DateDetailsGetter> list) {
         this.context = context;
         this.list = list;
     }
 
     @NonNull
     @Override
-    public DataHistoryDateAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public DateDetailsAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(context).inflate(R.layout.datahistory_items,parent,false);
-        return new DataHistoryDateAdapter.MyViewHolder(v);
+        return new DateDetailsAdapter.MyViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        DataHistoryDateGetter dataHistory = list.get(position);
+        DateDetailsGetter dataHistory = list.get(position);
         holder.setDataHistoyDetails(dataHistory);
 
         //Edit when tap into one of the dates
@@ -44,10 +44,10 @@ public class DataHistoryDateAdapter extends RecyclerView.Adapter<DataHistoryDate
                 Intent intent = new Intent(context, DataGraph.class);
                 Bundle bundle = new Bundle();
                 if(checkInsufficient.equals("1")){
-                    bundle.putString("passingDate", dataHistory.getDate());
+                    bundle.putString("passingDate", dataHistory.getLastDate());
                     bundle.putString("showGraph", "0");
                 }else{
-                    bundle.putString("passingDate", dataHistory.getDate());
+                    bundle.putString("passingDate", dataHistory.getLastDate());
                     bundle.putString("showGraph", "1");
                 }
                 intent.putExtras(bundle);
@@ -75,22 +75,22 @@ public class DataHistoryDateAdapter extends RecyclerView.Adapter<DataHistoryDate
             oneImage = itemView.findViewById(R.id.imageSevere);
         }
 
-        void setDataHistoyDetails(DataHistoryDateGetter data){
-            oneDate.setText(data.getDate());
-            oneUpdated.setText(data.getLastUpdated());
+        void setDataHistoyDetails(DateDetailsGetter data){
+            oneDate.setText(data.getLastDate());
+            oneUpdated.setText(data.getLastTime());
             oneNumData.setText(data.getNumData());
-            oneSevere.setText(data.getSevereId());
+            oneSevere.setText(data.getDangerousStage());
 
-            if(data.getSevereId().equals("1")){
+            if(data.getDangerousStage().equals("1")){
                 oneSevere.setText("Normal");
                 oneImage.setImageResource(R.drawable.waternormal);
-            } else if(data.getSevereId().equals("2")){
+            } else if(data.getDangerousStage().equals("2")){
                 oneSevere.setText("Alert");
                 oneImage.setImageResource(R.drawable.wateralert);
-            } else if(data.getSevereId().equals("3")){
+            } else if(data.getDangerousStage().equals("3")){
                 oneSevere.setText("Warning");
                 oneImage.setImageResource(R.drawable.waterwarning);
-            } else if(data.getSevereId().equals("4")){
+            } else if(data.getDangerousStage().equals("4")){
                 oneSevere.setText("Danger");
                 oneImage.setImageResource(R.drawable.waterdanger);
             }

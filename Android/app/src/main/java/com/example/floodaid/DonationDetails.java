@@ -141,11 +141,8 @@ public class DonationDetails extends AppCompatActivity {
                         storageReference.child("donatedItems/"+itemId+"/image").delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(DonationDetails.this, "Data Deleted, Please refresh page", Toast.LENGTH_SHORT).show();
-                                Fragment backToDonation = new DonationFragment();
-                                androidx.fragment.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                                fragmentTransaction.replace(R.id.donationDetails,backToDonation);
-                                finish();
+                                Toast.makeText(DonationDetails.this, "Item Deleted", Toast.LENGTH_SHORT).show();
+                                getSupportFragmentManager().beginTransaction().replace(R.id.donationDetails, new DonationFragment()).commit();
                             }
                         });
                     }

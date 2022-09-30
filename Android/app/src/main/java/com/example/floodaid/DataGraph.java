@@ -88,21 +88,21 @@ public class DataGraph extends AppCompatActivity {
             mChart.setNoDataText("Tap to Generate Graph");
 
             //The line to show level
-            LimitLine upper_limit = new LimitLine(5f, "Danger");
+            LimitLine upper_limit = new LimitLine(17f, "Danger");
             upper_limit.setLineWidth(4f);
             upper_limit.enableDashedLine(10f,10f,0f);
             upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
             upper_limit.setTextSize(20f);
 
             //The line to show level
-            LimitLine lower_limit = new LimitLine(10f, "Warning");
+            LimitLine lower_limit = new LimitLine(16f, "Warning");
             upper_limit.setLineWidth(4f);
             upper_limit.enableDashedLine(10f,10f,0f);
             upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
             upper_limit.setTextSize(20f);
 
             //The line to show level
-            LimitLine alert_Limit = new LimitLine(15f, "Alert");
+            LimitLine alert_Limit = new LimitLine(14f, "Alert");
             upper_limit.setLineWidth(4f);
             upper_limit.enableDashedLine(10f,10f,0f);
             upper_limit.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
@@ -115,8 +115,8 @@ public class DataGraph extends AppCompatActivity {
             leftAxis.addLimitLine(alert_Limit);
 
             //The Y axis maximum number shown
-            leftAxis.setAxisMaximum(40f);
-            leftAxis.setAxisMinimum(0f);
+            leftAxis.setAxisMaximum(18f);
+            leftAxis.setAxisMinimum(11f);
             leftAxis.enableGridDashedLine(10f,10f,0);
             leftAxis.setDrawTopYLabelEntry(true);
             mChart.getAxisRight().setEnabled(false);
@@ -130,7 +130,7 @@ public class DataGraph extends AppCompatActivity {
             readDataYAxis(new FirebaseCallYAxisback() {
                 @Override
                 public void onCallback(ArrayList<Entry> list1) {
-                    LineDataSet set1 = new LineDataSet(list1, "Distance between Sensor and Water Level");
+                    LineDataSet set1 = new LineDataSet(list1, "Water Level");
                     set1.setFillAlpha(110);
                     set1.setColor(Color.RED);
                     set1.setLineWidth(3f);
@@ -173,10 +173,10 @@ public class DataGraph extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot1) {
                 for (DataSnapshot data : snapshot1.getChildren()) { //GETTING TIME
                     //Distance value
-                    String itemName = data.child("Distance").getValue().toString();
+                    String itemName = data.child("WaterLevel").getValue().toString();
                     float numFloat = Float.parseFloat(itemName.toString());
-                    int numInt = Math.round(numFloat);
-                    yValues.add(new Entry(counter, numInt));
+                    //int numInt = Math.round(numFloat);
+                    yValues.add(new Entry(counter, numFloat));
                     counter++;
                 }//end for loop
                 firebaseCallback.onCallback(yValues);

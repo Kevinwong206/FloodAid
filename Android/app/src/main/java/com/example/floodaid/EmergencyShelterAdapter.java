@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -42,8 +43,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -58,7 +62,7 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
     static int PERMISSION_CODE = 100;
     FusedLocationProviderClient fusedLocationProviderClient;
     double destinationLat, destinationLong, currentLat, currentLong;
-
+    private static final DecimalFormat df = new DecimalFormat("0.00");
 
     public EmergencyShelterAdapter(Context context, ArrayList<EmergencyShelterGetter> shelterArrayList) {
         this.context = context;
@@ -102,12 +106,46 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
                     e.printStackTrace();
                 }
 
-                holder.distancetv.setText(shelterGetter.distance+"km");
+                Location startPoint=new Location("");
+                startPoint.setLatitude(currentLat);
+                startPoint.setLongitude(currentLong);
+
+                Location endPoint=new Location("");
+                endPoint.setLatitude(destinationLat);
+                endPoint.setLongitude(destinationLong);
+
+                double distance=startPoint.distanceTo(endPoint);
+                distance = distance/1000; //convert to km
+                String finalDistance = df.format(distance);
+                fStore = FirebaseFirestore.getInstance();
+
+
+                if(!finalDistance.equals(shelterGetter.distance)){
+                    DocumentReference documentReference = fStore.collection("emergencyShelter").document(shelterGetter.shelterName);
+                    Map<String, Object> shelterItems = new HashMap<>();
+
+                    shelterItems.put("shelterName", shelterGetter.shelterName);
+                    shelterItems.put("shelterAddress", shelterGetter.shelterAddress);
+                    shelterItems.put("name", shelterGetter.name);
+                    shelterItems.put("phone", shelterGetter.phone);
+                    shelterItems.put("maxCapacity", shelterGetter.maxCapacity);
+                    shelterItems.put("currentCapacity", shelterGetter.currentCapacity);
+                    shelterItems.put("distance", finalDistance);
+
+                    documentReference.set(shelterItems).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                        }
+                    });
+                }
+
+                holder.distancetv.setText(finalDistance+"km");
                 holder.shelterNametv.setText(shelterGetter.shelterName);
                 holder.contacttv.setText(shelterGetter.phone);
                 holder.currenttv.setText(shelterGetter.currentCapacity);
                 holder.maxtv.setText(shelterGetter.maxCapacity);
                 holder.addresstv.setText(shelterGetter.shelterAddress);
+                holder.nametv.setText(shelterGetter.name);
                 holder.mapBtn.setVisibility(View.VISIBLE);
 
                 double finalCurrent = Double.parseDouble(shelterGetter.currentCapacity);
@@ -120,8 +158,6 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
                 holder.image.setImageResource(R.drawable.shelter_icon);
                 holder.progressBar.setProgress(finalPercent);
 
-
-                fStore = FirebaseFirestore.getInstance();
                 mAuth = FirebaseAuth.getInstance();
                 if (mAuth.getCurrentUser() != null) {
                     String userId = mAuth.getCurrentUser().getUid();
@@ -204,7 +240,7 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
                         i.putExtra("maxCapacity",shelterGetter.maxCapacity);
                         i.putExtra("name", shelterGetter.name);
                         i.putExtra("phone",shelterGetter.phone);
-                        i.putExtra("distance", shelterGetter.distance);
+                        i.putExtra("distance", finalDistance);
                         context.startActivity(i);
                     }
                 });
@@ -221,7 +257,7 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         ImageView image;
-        TextView distancetv, shelterNametv, contacttv,  currenttv, maxtv, percentagetv, addresstv;
+        TextView distancetv, shelterNametv, contacttv,  currenttv, maxtv, percentagetv, addresstv, nametv;
         Button mapBtn, callBtn, navigateBtn, deleteBtn, editBtn;
         ProgressBar progressBar;
 
@@ -242,6 +278,7 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
             deleteBtn = itemView.findViewById(R.id.btDelete);
             editBtn = itemView.findViewById(R.id.btEdit);
             progressBar = itemView.findViewById(R.id.progressBar);
+            nametv = itemView.findViewById(R.id.tvName);
 
         }
     }

@@ -15,34 +15,13 @@
       },
       "oauth_client": [
         {
-          "client_id": "146890807112-t5a28901r20p7uqmc81363ddb3erk3fm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBAigpl6k4txRY5CWE-e-4jntSXn0Madzg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "146890807112-t5a28901r20p7uqmc81363ddb3erk3fm.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:146890807112:android:ad40eade962e707c0f057d",
-        "android_client_info": {
-          "package_name": "com.example.smartiotfloodmonitoringsystem"
-        }
-      },
-      "oauth_client": [
+          "client_id": "146890807112-robdsmqvq736aus5ohpojs7r3b380qs0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.floodaid",
+            "certificate_hash": "d60d3c2adda2abf7a663abe1f4abb7dc88ade986"
+          }
+        },
         {
           "client_id": "146890807112-t5a28901r20p7uqmc81363ddb3erk3fm.apps.googleusercontent.com",
           "client_type": 3

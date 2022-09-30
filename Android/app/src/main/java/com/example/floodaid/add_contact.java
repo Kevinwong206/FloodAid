@@ -249,7 +249,7 @@ public class add_contact extends AppCompatActivity {
 
 
                 if (officePassed == true && phonePassed == true && addressPassed == true && statepassed == true) { // && privilegePassed == true) {
-                    DocumentReference documentReference = fStore.collection("contact").document(officeName);
+                    DocumentReference documentReference = fStore.collection("emergencyContact").document(officeName);
                     Map<String,Object> contactItems = new HashMap<>();
                     int contactTypeID = 0;
 
@@ -268,7 +268,7 @@ public class add_contact extends AppCompatActivity {
                     //uploadPicture(contactTypeID);
 
 
-                    contactItems.put("officeName",officeName);
+                    contactItems.put("contactName",officeName);
                     contactItems.put ("phoneNum", phone);
                     contactItems.put("address",address);
                     contactItems.put ("state", state);

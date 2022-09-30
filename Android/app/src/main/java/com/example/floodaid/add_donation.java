@@ -134,6 +134,7 @@ public class add_donation extends AppCompatActivity {
             eQuantity.setText(passedQuantity);
             eAddress.setText(passedAddress);
         }
+
         if(key.equals("empty")){
             key = UUID.randomUUID().toString();
         }
@@ -279,8 +280,8 @@ public class add_donation extends AppCompatActivity {
                             donateItems.put("productTitle",title);
                             donateItems.put ("condition", condition);
                             donateItems.put("quantity",quantity);
-                            donateItems.put ("address", address);
-                            donateItems.put ("itemId", key);
+                            donateItems.put ("pickupAddress", address);
+                            donateItems.put ("itemUID", key);
                             donateItems.put ("donatorName", name);
                             donateItems.put ("donatorPhone", phone);
                             donateItems.put ("imageURL", downloadUrl.toString());

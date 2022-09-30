@@ -195,6 +195,19 @@
             app:layout_constraintStart_toEndOf="@+id/slash"
             app:layout_constraintTop_toBottomOf="@+id/tvContact" />
 
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/progressBar"
+            app:layout_constraintHorizontal_bias="0.285"
+            app:layout_constraintStart_toEndOf="@+id/contactIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvContact" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout

@@ -24,8 +24,8 @@
         app:cnb_iconColor="#00496A"/>
 
     <item
-        android:id="@+id/bottom_nav_contact"
-        android:title="Contact"
+        android:id="@+id/bottom_nav_emergency"
+        android:title="Emergency"
         android:icon="@drawable/emergencyicon"
         app:cnb_textColor="#00496A"
         app:cnb_iconColor="#00496A"/>

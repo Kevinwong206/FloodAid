@@ -1,25 +1,21 @@
 package com.example.floodaid;
 
 public class DataDetailsGetter {
-    String Distance, WeatherDesc, Date, Time;
+    String WaterLevel, WeatherDesc, Date, Time;
 
     public DataDetailsGetter() {
     }
 
-    public DataDetailsGetter(String distance, String weatherDesc, String date, String time) {
-        Distance = distance;
+    public DataDetailsGetter(String waterLevel, String weatherDesc, String date, String time) {
+        WaterLevel = waterLevel;
         WeatherDesc = weatherDesc;
         Date = date;
         Time = time;
     }
 
-    public String getDistance() {
-        return Distance;
-    }
+    public String getWaterLevel() { return WaterLevel; }
 
-    public void setDistance(String distance) {
-        Distance = distance;
-    }
+    public void setWaterLevel(String waterLevel) { WaterLevel = waterLevel; }
 
     public String getWeatherDesc() {
         return WeatherDesc;

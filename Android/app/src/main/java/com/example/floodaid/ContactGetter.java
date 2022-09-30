@@ -1,18 +1,22 @@
 package com.example.floodaid;
 
 public class ContactGetter {
-    String address, contactType, officeName, phoneNum, state;
+    String address, contactType, contactName, phoneNum, state;
 
     public ContactGetter() {
     }
 
-    public ContactGetter(String address, String contactType, String officeName, String phoneNum, String state) {
+    public ContactGetter(String address, String contactType, String contactName, String phoneNum, String state) {
         this.address = address;
         this.contactType = contactType;
-        this.officeName = officeName;
+        this.contactName = contactName;
         this.phoneNum = phoneNum;
         this.state = state;
     }
+
+    public String getContactName() { return contactName; }
+
+    public void setContactName(String contactName) { this.contactName = contactName; }
 
     public String getAddress() {
         return address;
@@ -28,14 +32,6 @@ public class ContactGetter {
 
     public void setContactType(String contactType) {
         this.contactType = contactType;
-    }
-
-    public String getOfficeName() {
-        return officeName;
-    }
-
-    public void setOfficeName(String officeName) {
-        this.officeName = officeName;
     }
 
     public String getPhoneNum() {

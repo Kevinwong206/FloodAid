@@ -102,7 +102,7 @@ public class RealTimeDataFragment extends Fragment {
         realCityName = v.findViewById(R.id.locationName);
         rootDatabaseref = FirebaseDatabase.getInstance().getReference();
 
-        rootDatabaseref.child("RealTimeData").child("data").child("CityName").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("CityName").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 cityName = snapshot.getValue().toString();
@@ -119,21 +119,21 @@ public class RealTimeDataFragment extends Fragment {
         imageWaterLevel = v.findViewById(R.id.WaterLevelImage);
         bgWaterLevel = v.findViewById(R.id.imageView);
 
-        rootDatabaseref.child("RealTimeData").child("data").child("Distance").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("WaterLevel").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 distance = snapshot.getValue().toString();
                 distance = distance + " cm";
                 realTimeDistance.setText(distance);
-                int compareDistance = Integer.valueOf(snapshot.getValue().toString());
+                float compareDistance = Float.parseFloat(snapshot.getValue().toString());
 
-                if(compareDistance>0 && compareDistance<=5){
+                if(compareDistance>=17){
                     imageWaterLevel.setImageResource(R.drawable.waterdanger);
                     bgWaterLevel.setImageResource(R.drawable.bgdanger);
-                }else if(compareDistance>5 && compareDistance<=10){
+                }else if(compareDistance>=16 && compareDistance<17){
                     imageWaterLevel.setImageResource(R.drawable.waterwarning);
                     bgWaterLevel.setImageResource(R.drawable.bgwarning);
-                }else if(compareDistance>10 && compareDistance<=15){
+                }else if(compareDistance>=14 && compareDistance<16){
                     imageWaterLevel.setImageResource(R.drawable.wateralert);
                     bgWaterLevel.setImageResource(R.drawable.bgalert);
                 }else{
@@ -151,7 +151,7 @@ public class RealTimeDataFragment extends Fragment {
         rootDatabaseref = FirebaseDatabase.getInstance().getReference();
         imageWeather = v.findViewById(R.id.weatherImage);
 
-        rootDatabaseref.child("RealTimeData").child("data").child("WeatherID").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("WeatherID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int compareID = Integer.valueOf(snapshot.getValue().toString());
@@ -178,7 +178,7 @@ public class RealTimeDataFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 
-        rootDatabaseref.child("RealTimeData").child("data").child("WeatherDesc").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("WeatherDesc").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 weather = snapshot.getValue().toString();
@@ -195,7 +195,7 @@ public class RealTimeDataFragment extends Fragment {
         imageTemp = v.findViewById(R.id.tempImage);
 
         imageTemp.setImageResource(R.drawable.temperature);
-        rootDatabaseref.child("RealTimeData").child("data").child("Temperature").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("Temperature").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 temp = snapshot.getValue().toString();
@@ -213,7 +213,7 @@ public class RealTimeDataFragment extends Fragment {
         imageHumidity = v.findViewById(R.id.humidImage);
 
         imageHumidity.setImageResource(R.drawable.humidity);
-        rootDatabaseref.child("RealTimeData").child("data").child("Humidity").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("Humidity").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 humidity = snapshot.getValue().toString();
@@ -231,7 +231,7 @@ public class RealTimeDataFragment extends Fragment {
         rootDatabaseref = FirebaseDatabase.getInstance().getReference();
 
         imageWindSpeed.setImageResource(R.drawable.windspeed);
-        rootDatabaseref.child("RealTimeData").child("data").child("WindSpeed").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("WindSpeed").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 windSpeed = snapshot.getValue().toString();
@@ -248,7 +248,7 @@ public class RealTimeDataFragment extends Fragment {
         imageWindDirection = v.findViewById(R.id.windDirectionImage);
         rootDatabaseref = FirebaseDatabase.getInstance().getReference();
 
-        rootDatabaseref.child("RealTimeData").child("data").child("WindDegree").addValueEventListener(new ValueEventListener() {
+        rootDatabaseref.child("RealTimeData").child("WindDegree").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 windDirection = snapshot.getValue().toString();

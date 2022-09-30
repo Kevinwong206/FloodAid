@@ -40,7 +40,7 @@ public class DataDetailsAdapter extends RecyclerView.Adapter<DataDetailsAdapter.
 
     public static class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView hisDistance, hisWeather,hisDate,hisTime;
+        TextView hisDistance, hisWeather,hisDate,hisTime, hisLevel;
 
         MyViewHolder(View itemView) {
             super(itemView);
@@ -48,13 +48,25 @@ public class DataDetailsAdapter extends RecyclerView.Adapter<DataDetailsAdapter.
             hisWeather = itemView.findViewById(R.id.tvHisWeather);
             hisDate = itemView.findViewById(R.id.tvHisDate);
             hisTime = itemView.findViewById(R.id.tvHisTime);
+            hisLevel = itemView.findViewById(R.id.tvHisLevel);
         }
 
         void setDataHistoyDetails(DataDetailsGetter data){
-            hisDistance.setText(data.getDistance());
+            hisDistance.setText(data.getWaterLevel());
             hisWeather.setText(data.getWeatherDesc());
             hisDate.setText(data.getDate());
             hisTime.setText(data.getTime());
+
+            float compareDistance = Float.parseFloat(data.getWaterLevel());
+
+            if(compareDistance>=17)
+                hisLevel.setText("Danger");
+            else if (compareDistance>=16 && compareDistance<17)
+                hisLevel.setText("Warning");
+            else if(compareDistance>=14 && compareDistance<16)
+                hisLevel.setText("Alert");
+            else
+                hisLevel.setText("Normal");
         }
     }
 }

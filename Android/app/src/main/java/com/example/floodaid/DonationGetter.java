@@ -1,29 +1,30 @@
 package com.example.floodaid;
 
 public class DonationGetter {
-    String address, condition, donatorName, donatorPhone, itemId, productTitle, quantity,imageURL;
+    String pickupAddress, condition, donatorName, donatorPhone, itemUID, productTitle, quantity,imageURL;
 
     public DonationGetter() {
     }
 
-    public DonationGetter(String address, String condition, String donatorName, String donatorPhone, String itemId, String productTitle, String quantity, String imageURL) {
-        this.address = address;
+    public DonationGetter(String pickupAddress, String condition, String donatorName, String donatorPhone, String itemUID, String productTitle, String quantity, String imageURL) {
+
+        this.pickupAddress = pickupAddress;
         this.condition = condition;
         this.donatorName = donatorName;
         this.donatorPhone = donatorPhone;
-        this.itemId = itemId;
+        this.itemUID = itemUID;
         this.productTitle = productTitle;
         this.quantity = quantity;
         this.imageURL = imageURL;
     }
 
-    public String getAddress() {
-        return address;
-    }
+    public String getPickupAddress() { return pickupAddress; }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+    public void setPickupAddress(String pickupAddress) { this.pickupAddress = pickupAddress; }
+
+    public String getItemUID() { return itemUID; }
+
+    public void setItemUID(String itemUID) { this.itemUID = itemUID; }
 
     public String getCondition() {
         return condition;
@@ -47,14 +48,6 @@ public class DonationGetter {
 
     public void setDonatorPhone(String donatorPhone) {
         this.donatorPhone = donatorPhone;
-    }
-
-    public String getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
     }
 
     public String getProductTitle() {

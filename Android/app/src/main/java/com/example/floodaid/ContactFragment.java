@@ -154,7 +154,6 @@ public class ContactFragment extends Fragment {
         btnShelter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "clicked", Toast.LENGTH_SHORT).show();
                 Fragment second = new EmergencyShelterFragment();
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.contactFragment,second).commit();
                 btnShelter.setVisibility(View.GONE);
@@ -171,7 +170,7 @@ public class ContactFragment extends Fragment {
     private void filterList(String s) {
         ArrayList<ContactGetter> filteredContact = new ArrayList<>();
         for(ContactGetter item: contactArrayList){
-            if(item.getOfficeName().toLowerCase().contains(s.toLowerCase())){
+            if(item.getContactName().toLowerCase().contains(s.toLowerCase())){
                 filteredContact.add(item);
             }
         }
@@ -185,7 +184,7 @@ public class ContactFragment extends Fragment {
 
     private void EventChangeListener() {
 
-        db.collection("contact").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("emergencyContact").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 //if recycler view not empty

@@ -126,7 +126,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHo
                 distance = distance/1000; //convert to km
                 String finalDistance = df.format(distance);
 
-                holder.tvOfficeName.setText(contactGetter.officeName);
+                holder.tvOfficeName.setText(contactGetter.contactName);
                 holder.tvAddress.setText(contactGetter.address);
                 holder.tvPhone.setText(contactGetter.phoneNum);
                 holder.tvState.setText(contactGetter.state);
@@ -197,7 +197,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHo
                 holder.btnDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        fStore.collection("contact").document(contactGetter.officeName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        fStore.collection("emergencyContact").document(contactGetter.contactName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(context, "Data Deleted, Please refresh page", Toast.LENGTH_SHORT).show();
@@ -210,7 +210,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.MyViewHo
                     @Override
                     public void onClick(View view) {
                         Intent i = new Intent(view.getContext(), add_contact.class);
-                        i.putExtra("office", contactGetter.officeName);
+                        i.putExtra("office", contactGetter.contactName);
                         i.putExtra("phone", contactGetter.phoneNum);
                         i.putExtra("add", contactGetter.address);
                         i.putExtra("state", contactGetter.state);
