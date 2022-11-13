@@ -35,7 +35,6 @@ public class DateDetailsAdapter extends RecyclerView.Adapter<DateDetailsAdapter.
         DateDetailsGetter dataHistory = list.get(position);
         holder.setDataHistoyDetails(dataHistory);
 
-        //Edit when tap into one of the dates
         holder.oneImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

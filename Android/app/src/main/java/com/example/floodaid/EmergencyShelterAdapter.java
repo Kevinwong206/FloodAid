@@ -63,6 +63,13 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
     FusedLocationProviderClient fusedLocationProviderClient;
     double destinationLat, destinationLong, currentLat, currentLong;
     private static final DecimalFormat df = new DecimalFormat("0.00");
+    String finalDistance;
+
+    public void setFilteredList (ArrayList<EmergencyShelterGetter> filteredList){
+        this.shelterArrayList = filteredList;
+        notifyDataSetChanged();
+    }
+
 
     public EmergencyShelterAdapter(Context context, ArrayList<EmergencyShelterGetter> shelterArrayList) {
         this.context = context;
@@ -91,53 +98,9 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
             public void run() {
                 EmergencyShelterGetter shelterGetter = shelterArrayList.get(position);
 
-                Geocoder geocoder = new Geocoder(context);
-                List<Address> addressList;
-                try {
-                    addressList = geocoder.getFromLocationName(shelterGetter.shelterAddress,1 );
-                    if (!addressList.isEmpty()){
-                        destinationLat = addressList.get(0).getLatitude();
-                        destinationLong = addressList.get(0).getLongitude();
-                    }
-                    else{
-                        Toast.makeText(context, "Unable to convert to long and lat", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Location startPoint=new Location("");
-                startPoint.setLatitude(currentLat);
-                startPoint.setLongitude(currentLong);
-
-                Location endPoint=new Location("");
-                endPoint.setLatitude(destinationLat);
-                endPoint.setLongitude(destinationLong);
-
-                double distance=startPoint.distanceTo(endPoint);
-                distance = distance/1000; //convert to km
-                String finalDistance = df.format(distance);
-                fStore = FirebaseFirestore.getInstance();
-
-
-                if(!finalDistance.equals(shelterGetter.distance)){
-                    DocumentReference documentReference = fStore.collection("emergencyShelter").document(shelterGetter.shelterName);
-                    Map<String, Object> shelterItems = new HashMap<>();
-
-                    shelterItems.put("shelterName", shelterGetter.shelterName);
-                    shelterItems.put("shelterAddress", shelterGetter.shelterAddress);
-                    shelterItems.put("name", shelterGetter.name);
-                    shelterItems.put("phone", shelterGetter.phone);
-                    shelterItems.put("maxCapacity", shelterGetter.maxCapacity);
-                    shelterItems.put("currentCapacity", shelterGetter.currentCapacity);
-                    shelterItems.put("distance", finalDistance);
-
-                    documentReference.set(shelterItems).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                        }
-                    });
-                }
+                convertDestination(shelterGetter);
+                compareDistance (currentLat, currentLong, destinationLat, destinationLong);
+                uploadDistance(shelterGetter);
 
                 holder.distancetv.setText(finalDistance+"km");
                 holder.shelterNametv.setText(shelterGetter.shelterName);
@@ -154,35 +117,10 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
                 int finalPercent = (int) percent;
 
                 holder.percentagetv.setText(finalPercent + "%");
-                
                 holder.image.setImageResource(R.drawable.shelter_icon);
                 holder.progressBar.setProgress(finalPercent);
 
-                mAuth = FirebaseAuth.getInstance();
-                if (mAuth.getCurrentUser() != null) {
-                    String userId = mAuth.getCurrentUser().getUid();
-                    DocumentReference documentReference = fStore.collection("users").document(userId);
-                    documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                            if (documentSnapshot.getString("isUser") != null) {
-                                //USER
-                                holder.deleteBtn.setVisibility(View.GONE);
-                                holder.editBtn.setVisibility(View.GONE);
-                                holder.callBtn.setVisibility(View.VISIBLE);
-                                holder.navigateBtn.setVisibility(View.VISIBLE);
-                            }
-
-                            if (documentSnapshot.getString("isAdmin") != null) {
-                                //ADMIN
-                                holder.callBtn.setVisibility(View.GONE);
-                                holder.navigateBtn.setVisibility(View.GONE);
-                                holder.deleteBtn.setVisibility(View.VISIBLE);
-                                holder.editBtn.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                }
+                enableButtons(holder);
 
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.CALL_PHONE}, PERMISSION_CODE);
@@ -224,7 +162,7 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
                         fStore.collection("emergencyShelter").document(shelterGetter.shelterName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(context, "Data Deleted, Please refresh page", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Emergency Shelter Deleted, Please refresh page", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -283,6 +221,28 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
         }
     }
 
+    public void uploadDistance(EmergencyShelterGetter shelterGetter){
+        fStore = FirebaseFirestore.getInstance();
+        if(!finalDistance.equals(shelterGetter.distance)){
+            DocumentReference documentReference = fStore.collection("emergencyShelter").document(shelterGetter.shelterName);
+            Map<String, Object> shelterItems = new HashMap<>();
+
+            shelterItems.put("shelterName", shelterGetter.shelterName);
+            shelterItems.put("shelterAddress", shelterGetter.shelterAddress);
+            shelterItems.put("name", shelterGetter.name);
+            shelterItems.put("phone", shelterGetter.phone);
+            shelterItems.put("maxCapacity", shelterGetter.maxCapacity);
+            shelterItems.put("currentCapacity", shelterGetter.currentCapacity);
+            shelterItems.put("distance", finalDistance);
+
+            documentReference.set(shelterItems).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                }
+            });
+        }
+    }
+
     @SuppressLint("MissingPermission")
     public void getCurrentLocation() {
         LocationManager locationManager = (LocationManager) context.getSystemService(
@@ -298,6 +258,64 @@ public class EmergencyShelterAdapter extends RecyclerView.Adapter<EmergencyShelt
                     if (location != null) {
                         currentLat = location.getLatitude();
                         currentLong = location.getLongitude();
+                    }
+                }
+            });
+        }
+    }
+    public void convertDestination(EmergencyShelterGetter shelterGetter){
+        Geocoder geocoder = new Geocoder(context);
+        List<Address> addressList;
+        try {
+            addressList = geocoder.getFromLocationName(shelterGetter.shelterAddress,1 );
+            if (!addressList.isEmpty()){
+                destinationLat = addressList.get(0).getLatitude();
+                destinationLong = addressList.get(0).getLongitude();
+            }
+            else{
+                Toast.makeText(context, "Unable to convert to long and lat", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void compareDistance(double currentLat, double currentLong, double destinationLat, double destinationLong){
+        Location startPoint=new Location("");
+        startPoint.setLatitude(currentLat);
+        startPoint.setLongitude(currentLong);
+
+        Location endPoint=new Location("");
+        endPoint.setLatitude(destinationLat);
+        endPoint.setLongitude(destinationLong);
+
+        double distance=startPoint.distanceTo(endPoint);
+        distance = distance/1000; //convert to km
+        finalDistance = df.format(distance);
+    }
+
+    public void enableButtons(MyViewHolder holder) {
+        mAuth = FirebaseAuth.getInstance();
+        if (mAuth.getCurrentUser() != null) {
+            String userId = mAuth.getCurrentUser().getUid();
+            DocumentReference documentReference = fStore.collection("users").document(userId);
+            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    if (documentSnapshot.getString("isUser") != null) {
+                        //USER
+                        holder.deleteBtn.setVisibility(View.GONE);
+                        holder.editBtn.setVisibility(View.GONE);
+                        holder.callBtn.setVisibility(View.VISIBLE);
+                        holder.navigateBtn.setVisibility(View.VISIBLE);
+                    }
+
+                    if (documentSnapshot.getString("isAdmin") != null) {
+                        //ADMIN
+                        holder.callBtn.setVisibility(View.GONE);
+                        holder.navigateBtn.setVisibility(View.GONE);
+                        holder.deleteBtn.setVisibility(View.VISIBLE);
+                        holder.editBtn.setVisibility(View.VISIBLE);
                     }
                 }
             });

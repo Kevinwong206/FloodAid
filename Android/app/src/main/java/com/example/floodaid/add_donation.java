@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,8 @@ public class add_donation extends AppCompatActivity {
         eAddress = findViewById(R.id.etAddress);
         submitBtn = findViewById(R.id.btnSubmit);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        checkIntent();
+
         imageDonate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,45 +118,14 @@ public class add_donation extends AppCompatActivity {
             }
         });
 
-        Intent intent = getIntent();
-
-        if (intent.hasExtra("address")){
-            Bundle bundle = intent.getExtras();
-            passedAddress = bundle.getString("address");
-            passedCondition = bundle.getString("condition");
-            passedTitle = bundle.getString("productTitle");
-            passedQuantity = bundle.getString("quantity");
-            passedURL = bundle.getString("imageUrL");
-            passedId = bundle.getString("id");
-            key=passedId;
-
-            Picasso.get().load(passedURL).into(imageDonate);
-            eProduct.setText(passedTitle);
-            eCondition.setText(passedCondition);
-            eQuantity.setText(passedQuantity);
-            eAddress.setText(passedAddress);
-        }
-
         if(key.equals("empty")){
             key = UUID.randomUUID().toString();
         }
 
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
-
         storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
-        if(fAuth.getCurrentUser() != null){
-            userId = fAuth.getCurrentUser().getUid();
-            DocumentReference documentReferencetest = fStore.collection("users").document(userId);
-            documentReferencetest.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                    name =  documentSnapshot.getString("fullName");
-                    phone = documentSnapshot.getString("phoneNum");
-                }
-            });
-        }
+        getCurrentUser();
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,73 +136,40 @@ public class add_donation extends AppCompatActivity {
                 address = eAddress.getText().toString().trim();
 
                 //Product Name
-                if (TextUtils.isEmpty(title)) {
-                    eProduct.setError("Product Name cannot be empty");
-                } else {
-                    productPassed = true;
-                    eProduct.setError(null);
-                }
-
+                validateTitle(title);
                 //Condition
-                if (TextUtils.isEmpty(condition)) {
-                    eCondition.setError("Condition cannot be empty");
-                } else if (!condition.matches("[a-zA-Z]+")) {
-                    eCondition.setError("Condition Type must contain alphabets only");
-                } else {
-                    conditionPassed = true;
-                    eCondition.setError(null);
-                }
-
+                validateCondition(condition);
                 //Quantity
-                if (TextUtils.isEmpty(quantity)) {
-                    eQuantity.setError("Phone Number cannot be empty");
-                } else if (!quantity.matches("[0-9]+")) {
-                    eQuantity.setError("Phone Number must only contain integer");
-                } else {
-                    quantityPassed = true;
-                    eQuantity.setError(null);
-                }
-
+                validateQuantity (quantity);
                 //ADDRESS
-                if (TextUtils.isEmpty(address)) {
-                    eAddress.setError("Address cannot be empty");
-                } else if(!TextUtils.isEmpty(address)){
-                    Geocoder geocoder = new Geocoder(add_donation.this);
-                    List<Address> addressList;
-                    try {
-                        addressList = geocoder.getFromLocationName(address,1 );
-                        //If valid address
-                        if (!addressList.isEmpty()){
-                            addressPassed = true;
-                            eAddress.setError(null);
-                        }
-                        //if fail
-                        else{
-                            eAddress.setError("Address is invalid");
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                validateAddress(address);
+
+                if (imagePassed == false){
+                    Toast.makeText(add_donation.this, "Please upload picture for the product", Toast.LENGTH_SHORT).show();
                 }
 
-                //error here, after print, wont run upload--------------------------------------------------------------------------------------------------------------------------------------------------------
-                if (imagePassed==false){
-                    Toast.makeText(add_donation.this, "Please a upload picture for the product", Toast.LENGTH_SHORT).show();
-                    uploadPicture(key);
-                }
-
-                if (productPassed == true && conditionPassed == true && quantityPassed == true && addressPassed == true) { // && imagepassed == true) {
-                    uploadPicture(key);
+                if (productPassed == true && conditionPassed == true && quantityPassed == true && addressPassed == true && imagePassed == true) {
+                    addProduct(key);
                 }
             }
         });
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private void pickImageFromGallery() {
         Intent intent = new Intent (Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, IMAGE_PICK_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
+            imageDonate.setImageURI(data.getData());
+            imageUri = data.getData();
+            imagePassed = true;
+        }
     }
 
     @Override
@@ -248,59 +186,162 @@ public class add_donation extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
-            imageDonate.setImageURI(data.getData());
-            imageUri = data.getData();
-            imagePassed=true;
+    private void checkIntent() {
+        Intent intent = getIntent();
+        if (intent.hasExtra("address")){
+            Bundle bundle = intent.getExtras();
+            passedAddress = bundle.getString("address");
+            passedCondition = bundle.getString("condition");
+            passedTitle = bundle.getString("productTitle");
+            passedQuantity = bundle.getString("quantity");
+            passedURL = bundle.getString("imageUrL");
+            passedId = bundle.getString("id");
+            key=passedId;
+
+            Picasso.get().load(passedURL).into(imageDonate);
+            eProduct.setText(passedTitle);
+            eCondition.setText(passedCondition);
+            eQuantity.setText(passedQuantity);
+            eAddress.setText(passedAddress);
+            imagePassed = true;
+
+            imageDonate.setEnabled(false);
+            eProduct.setEnabled(false);
+        }
+    }
+
+    void validateTitle(String title) {
+        if (TextUtils.isEmpty(title)) {
+            eProduct.setError("Product Name cannot be empty");
+        } else {
+            productPassed = true;
+            eProduct.setError(null);
+        }
+    }
+
+    void validateCondition(String condition) {
+        if (TextUtils.isEmpty(condition)) {
+            eCondition.setError("Condition cannot be empty");
+        } else if (!condition.matches("[a-zA-Z]+")) {
+            eCondition.setError("Condition Type must contain alphabets only");
+        } else {
+            conditionPassed = true;
+            eCondition.setError(null);
+        }
+    }
+
+    void validateQuantity(String quanitty) {
+        if (TextUtils.isEmpty(quantity)) {
+            eQuantity.setError("Phone Number cannot be empty");
+        } else if (!quantity.matches("[0-9]+")) {
+            eQuantity.setError("Phone Number must only contain integer");
+        } else {
+            quantityPassed = true;
+            eQuantity.setError(null);
+        }
+    }
+
+    void validateAddress(String address) {
+        if (TextUtils.isEmpty(address)) {
+            eAddress.setError("Address cannot be empty");
+        } else if(!TextUtils.isEmpty(address)){
+            Geocoder geocoder = new Geocoder(add_donation.this);
+            List<Address> addressList;
+            try {
+                addressList = geocoder.getFromLocationName(address,1 );
+                //If valid address
+                if (!addressList.isEmpty()){
+                    addressPassed = true;
+                    eAddress.setError(null);
+                }
+                //if fail
+                else{
+                    eAddress.setError("Address is invalid");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
 
-    private void uploadPicture(String key) {
+    private void getCurrentUser() {
+        storageReference = storage.getReference();
+        if(fAuth.getCurrentUser() != null){
+            userId = fAuth.getCurrentUser().getUid();
+            DocumentReference documentReferencetest = fStore.collection("users").document(userId);
+            documentReferencetest.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    name =  documentSnapshot.getString("fullName");
+                    phone = documentSnapshot.getString("phoneNum");
+                }
+            });
+        }
+    }
 
-        if(imageUri!=null){
-
+    private void addProduct(String key) {
+        if(imageUri!=null){ //when add
             StorageReference contactTypeRef = storageReference.child("donatedItems/"+key+"/image");
-            mUploadTask = contactTypeRef.putFile(imageUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            mUploadTask = contactTypeRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(add_donation.this, "Item Upload Successful", Toast.LENGTH_SHORT).show();
+
+                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                    while (!urlTask.isSuccessful());
+                    Uri downloadUrl = urlTask.getResult();
+
+
+                    DocumentReference documentReference = fStore.collection("donatedItems").document(key);
+                    Map<String,Object> donateItems = new HashMap<>();
+                    donateItems.put("productTitle",title);
+                    donateItems.put ("condition", condition);
+                    donateItems.put("quantity",quantity);
+                    donateItems.put ("pickupAddress", address);
+                    donateItems.put ("itemUID", key);
+                    donateItems.put ("donatorName", name);
+                    donateItems.put ("donatorPhone", phone);
+                    donateItems.put ("imageURL", downloadUrl.toString());
+
+                    //Return to Donation page after successful upload
+                    documentReference.set(donateItems).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(add_donation.this, "Image Upload Successful", Toast.LENGTH_SHORT).show();
-
-                            Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                            while (!urlTask.isSuccessful());
-                            Uri downloadUrl = urlTask.getResult();
-
-
-                            DocumentReference documentReference = fStore.collection("donatedItems").document(key);
-                            Map<String,Object> donateItems = new HashMap<>();
-                            donateItems.put("productTitle",title);
-                            donateItems.put ("condition", condition);
-                            donateItems.put("quantity",quantity);
-                            donateItems.put ("pickupAddress", address);
-                            donateItems.put ("itemUID", key);
-                            donateItems.put ("donatorName", name);
-                            donateItems.put ("donatorPhone", phone);
-                            donateItems.put ("imageURL", downloadUrl.toString());
-
-                            //Return to Donation page after successful upload
-                            documentReference.set(donateItems).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Fragment backToDonation = new DonationFragment();
-                                    androidx.fragment.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                                    fragmentTransaction.replace(R.id.add_donation_page,backToDonation);
-                                    finish();
-                                }
-                            });
+                        public void onSuccess(Void aVoid) {
+                            Fragment backToDonation = new DonationFragment();
+                            androidx.fragment.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                            fragmentTransaction.replace(R.id.add_donation_page,backToDonation);
+                            finish();
                         }
                     });
+                }
+            });
+        }
+        else{ //When update
+            DocumentReference documentReference = fStore.collection("donatedItems").document(key);
+            Map<String,Object> donateItems = new HashMap<>();
+            donateItems.put("productTitle",title);
+            donateItems.put ("condition", condition);
+            donateItems.put("quantity",quantity);
+            donateItems.put ("pickupAddress", address);
+            donateItems.put ("itemUID", key);
+            donateItems.put ("donatorName", name);
+            donateItems.put ("donatorPhone", phone);
+            donateItems.put ("imageURL", passedURL);
+
+            //Return to Donation page after successful upload
+            documentReference.set(donateItems).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Fragment backToDonation = new DonationFragment();
+                    androidx.fragment.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.add_donation_page,backToDonation);
+                    finish();
+                }
+            });
+            Toast.makeText(add_donation.this, "Item Updated Successful", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
 
 

@@ -74,6 +74,12 @@ public class ContactFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
 
         rvContact = view.findViewById(R.id.rvContacts);
+        btnDelete = view.findViewById(R.id.btDelete);
+        btnEdit = view.findViewById(R.id.btEdit);
+        btnNavigate = view.findViewById(R.id.btNavigate);
+        btnCall = view.findViewById(R.id.btCall);
+        btnShelter = view.findViewById(R.id.btnEmergencyShelter);
+
         rvContact.setHasFixedSize(true);
         rvContact.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -81,17 +87,25 @@ public class ContactFragment extends Fragment {
         mAuth= FirebaseAuth.getInstance();
         contactArrayList = new ArrayList<ContactGetter>();
         mContactAdapter = new ContactAdapter(getContext(),contactArrayList);
-
         rvContact.setAdapter(mContactAdapter);
 
         contactArrayList.clear();
-        EventChangeListener ();
-        btnDelete = view.findViewById(R.id.btDelete);
-        btnEdit = view.findViewById(R.id.btEdit);
-        btnNavigate = view.findViewById(R.id.btNavigate);
-        btnCall = view.findViewById(R.id.btCall);
-        btnShelter = view.findViewById(R.id.btnEmergencyShelter);
+        reloadContact ();
 
+        //refresh entire recycler view
+        swipeRefreshLayout = view.findViewById(R.id.swipe);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                contactArrayList.clear();
+                reloadContact ();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        //Disable floating button for user
+        floatBtn = view.findViewById(R.id.floatingBtn);
+        enableFloatBtn(floatBtn);
 
         //when floaring button clicked
         contact = view.findViewById(R.id.floatingBtn);
@@ -102,38 +116,6 @@ public class ContactFragment extends Fragment {
                 startActivity(i);
             }
         });
-
-        //refresh entire recycler view
-        swipeRefreshLayout = view.findViewById(R.id.swipe);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                contactArrayList.clear();
-                EventChangeListener ();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-
-        //Disable floating button for user
-        floatBtn = view.findViewById(R.id.floatingBtn);
-        if(mAuth.getCurrentUser() != null) {
-            String userId = mAuth.getCurrentUser().getUid();
-            DocumentReference documentReference = db.collection("users").document(userId);
-            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                    if (documentSnapshot.getString("isUser") != null) {
-                        //USER
-                        floatBtn.setVisibility(View.GONE);
-                    }
-
-                    if (documentSnapshot.getString("isAdmin") != null) {
-                        //ADMIN
-                        floatBtn.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-        }
 
         //recycler view change based on search result
         searchView = view.findViewById(R.id.searchView);
@@ -146,7 +128,7 @@ public class ContactFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                filterList(s);
+                filterListName(s);
                 return false;
             }
         });
@@ -167,23 +149,28 @@ public class ContactFragment extends Fragment {
         return view;
     }
 
-    private void filterList(String s) {
-        ArrayList<ContactGetter> filteredContact = new ArrayList<>();
-        for(ContactGetter item: contactArrayList){
-            if(item.getContactName().toLowerCase().contains(s.toLowerCase())){
-                filteredContact.add(item);
-            }
-        }
-        if (filteredContact.isEmpty()){
-            Toast.makeText(getContext(), "No Data Found", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            mContactAdapter.setFilteredList(filteredContact);
+    private void enableFloatBtn(FloatingActionButton floatBtn) {
+        if(mAuth.getCurrentUser() != null) {
+            String userId = mAuth.getCurrentUser().getUid();
+            DocumentReference documentReference = db.collection("users").document(userId);
+            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    if (documentSnapshot.getString("isUser") != null) {
+                        //USER
+                        floatBtn.setVisibility(View.GONE);
+                    }
+
+                    if (documentSnapshot.getString("isAdmin") != null) {
+                        //ADMIN
+                        floatBtn.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         }
     }
 
-    private void EventChangeListener() {
-
+    private void reloadContact() {
         db.collection("emergencyContact").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -205,4 +192,21 @@ public class ContactFragment extends Fragment {
 
         });
     }
+
+    private void filterListName(String s) {
+        ArrayList<ContactGetter> filteredContact = new ArrayList<>();
+        for(ContactGetter item: contactArrayList){
+            if(item.getContactName().toLowerCase().contains(s.toLowerCase())){
+                filteredContact.add(item);
+            }
+        }
+        if (filteredContact.isEmpty()){
+            Toast.makeText(getContext(), "No Data Found", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            mContactAdapter.setFilteredList(filteredContact);
+        }
+    }
+
+
 }

@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,13 +53,15 @@ public class DateDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_data_history, container, false);
         swipeRefreshLayout = view.findViewById(R.id.swipeDate);
-        autoLoad(view);
+        getDatesData(view);
+        calenderSelectDate (view);
+        cancelBtnClicked();
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Datelist.clear();
-                autoLoad(view);
+                getDatesData(view);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -67,9 +70,8 @@ public class DateDetailsFragment extends Fragment {
         return view;
     }
 
-    private void autoLoad(View v) {
+    private void getDatesData(View v) {
         database = FirebaseDatabase.getInstance().getReference();
-
 
         tvRecordNum = v.findViewById(R.id.recordCount);
         cancelBtn = v.findViewById(R.id.cancelBtn);
@@ -78,7 +80,7 @@ public class DateDetailsFragment extends Fragment {
 
         rvDateDataHistory = v.findViewById(R.id.rvDataHistoryDate);
         rvDateDataHistory.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        ;
+
         Datelist = new ArrayList<>();
         database = FirebaseDatabase.getInstance().getReference();
         dateDataHistoryAdapter = new DateDetailsAdapter(v.getContext(), Datelist);
@@ -101,8 +103,9 @@ public class DateDetailsFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+    }
 
-
+    void calenderSelectDate(View v) {
         final Calendar calender = Calendar.getInstance();
         mYear = calender.get(Calendar.YEAR);
         mMonth = calender.get(Calendar.MONTH);
@@ -133,32 +136,34 @@ public class DateDetailsFragment extends Fragment {
                     cancelStatus = 0;
                 }
             }
+        });
+    }
 
-            private void filterDate(String date) {
-                Datelist.clear();
-                database.child("DataHistory").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            DateDetailsGetter dataHistory = dataSnapshot.getValue(DateDetailsGetter.class);
-                            if (dataHistory.getLastDate().equals(date))
-                                Datelist.add(dataHistory);
-                            if(Datelist.size()>0)
-                                tvRecordNum.setText("1 date available");
-                            else
-                                tvRecordNum.setText("0 date available");
-                            cancelBtn.setVisibility(View.VISIBLE);
-                        }
-                        dateDataHistoryAdapter.notifyDataSetChanged();
-                    }
+    private void filterDate(String date) {
+        Datelist.clear();
+        database.child("DateDetails").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    DateDetailsGetter dataHistory = dataSnapshot.getValue(DateDetailsGetter.class);
+                    if (dataHistory.getLastDate().equals(date))
+                        Datelist.add(dataHistory);
+                    if(Datelist.size()>0)
+                        tvRecordNum.setText("1 date available");
+                    else
+                        tvRecordNum.setText("0 date available");
+                    cancelBtn.setVisibility(View.VISIBLE);
+                }
+                dateDataHistoryAdapter.notifyDataSetChanged();
+            }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
             }
         });
+    }
 
+    void cancelBtnClicked() {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,4 +191,5 @@ public class DateDetailsFragment extends Fragment {
             }
         });
     }
+
 }

@@ -229,7 +229,6 @@ public class RealTimeDataFragment extends Fragment {
         realTimeWindSpeed = v.findViewById(R.id.realWindSpeed);
         imageWindSpeed = v.findViewById(R.id.windSpeedImage);
         rootDatabaseref = FirebaseDatabase.getInstance().getReference();
-
         imageWindSpeed.setImageResource(R.drawable.windspeed);
         rootDatabaseref.child("RealTimeData").child("WindSpeed").addValueEventListener(new ValueEventListener() {
             @Override
@@ -255,7 +254,6 @@ public class RealTimeDataFragment extends Fragment {
                 int compareDirection = Integer.valueOf(snapshot.getValue().toString());
                 windDirection = windDirection + " Degree";
                 realTimeWindDirection.setText(windDirection);
-
 
                 if(compareDirection>=0 && compareDirection<=22 || compareDirection>=338 && compareDirection<360 ){
                     imageWindDirection.setImageResource(R.drawable.n);

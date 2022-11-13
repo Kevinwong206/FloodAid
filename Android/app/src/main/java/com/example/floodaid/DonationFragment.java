@@ -66,7 +66,7 @@ public class DonationFragment extends Fragment {
         mDonationAdapter = new DonationAdapter(getContext(),donationArrayList);
 
         donationArrayList.clear();
-        EventChangeListener ();
+        reloadDonatedItems ();
         rvDonation.setAdapter(mDonationAdapter);
 
         sortBtn= view.findViewById(R.id.btnSort);
@@ -80,24 +80,13 @@ public class DonationFragment extends Fragment {
             }
         });
 
-        if(mAuth.getCurrentUser() != null) {
-            String userId = mAuth.getCurrentUser().getUid();
-            DocumentReference documentReference = db.collection("users").document(userId);
-            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                    donerName = documentSnapshot.getString("fullName");
-                }
-            });
-        }
-
         //refresh entire recycler view
         swipeRefreshLayout = view.findViewById(R.id.swipe);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 donationArrayList.clear();
-                EventChangeListener ();
+                reloadDonatedItems ();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -113,23 +102,22 @@ public class DonationFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String s) {
-                filterList(s);
+                filterListName(s);
                 return false;
             }
-
         });
 
         sortBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sortList();
+                getSignedInName();
+                filterList();
             }
         });
         return view;
     }
 
-    private void EventChangeListener() {
-
+    private void reloadDonatedItems() {
         db.collection("donatedItems").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -149,11 +137,10 @@ public class DonationFragment extends Fragment {
                     mDonationAdapter.notifyDataSetChanged();
                 }
             }
-
         });
     }
 
-    private void filterList(String s) {
+    private void filterListName(String s) {
         ArrayList<DonationGetter> filteredContact = new ArrayList<>();
         for(DonationGetter item: donationArrayList){
             if(item.getProductTitle().toLowerCase().contains(s.toLowerCase())){
@@ -168,8 +155,20 @@ public class DonationFragment extends Fragment {
         }
     }
 
+    private void getSignedInName(){
+        if(mAuth.getCurrentUser() != null) {
+            String userId = mAuth.getCurrentUser().getUid();
+            DocumentReference documentReference = db.collection("users").document(userId);
+            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    donerName = documentSnapshot.getString("fullName");
+                }
+            });
+        }
+    }
 
-    private void sortList() {
+    private void filterList() {
         ArrayList<DonationGetter> filteredContact = new ArrayList<>();
         for(DonationGetter item: donationArrayList){
             if(item.getDonatorName().equals(donerName)){

@@ -54,11 +54,14 @@ public class DonationAdapter extends RecyclerView.Adapter<DonationAdapter.MyView
         productTitle = donationGetter.productTitle;
         quantity = donationGetter.quantity;
         imageUrL = donationGetter.imageURL;
-
         Picasso.get().load(imageUrL).into(holder.imageDonateItem);
         holder.productName.setText(productTitle);
         holder.productQuantity.setText(quantity);
 
+        passIntent (donationGetter, holder);
+    }
+
+    private void passIntent(DonationGetter donationGetter, MyViewHolder holder) {
         holder.imageDonateItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,5 +98,7 @@ public class DonationAdapter extends RecyclerView.Adapter<DonationAdapter.MyView
             imageDonateItem = itemView.findViewById(R.id.imageItem);
         }
     }
+
+
 
 }

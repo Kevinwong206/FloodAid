@@ -48,17 +48,6 @@ public class DonationDetails extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        pickupAddress = bundle.getString("address");
-        productCondition = bundle.getString("condition");
-        donatorName = bundle.getString("donatorName");
-        donatorPhone = bundle.getString("donatorPhone");
-        productTitle = bundle.getString("productTitle");
-        productQuantity = bundle.getString("quantity");
-        imageUrL = bundle.getString("imageUrL");
-        itemId = bundle.getString("id");
-
         TextView title = findViewById(R.id.tvProductName);
         TextView name = findViewById(R.id.tvdonatorName);
         TextView phone = findViewById(R.id.tvDonatorPhone);
@@ -67,54 +56,14 @@ public class DonationDetails extends AppCompatActivity {
         TextView address = findViewById(R.id.tvAddress);
         ImageView imageItem = findViewById(R.id.imageItem);
 
+        loadIntent(title,name,phone,quantity,condition,address,imageItem);
+
         Button editBtn = findViewById(R.id.btnEdit);
         Button deleteBtn = findViewById(R.id.btnDelete);
         Button callBtn = findViewById(R.id.btnCall);
         Button navigateBtn = findViewById(R.id.btnNavigate);
 
-        Picasso.get().load(imageUrL).into(imageItem);
-        title.setText(productTitle);
-        name.setText(donatorName);
-        phone.setText(donatorPhone);
-        quantity.setText(productQuantity);
-        condition.setText(productCondition);
-        address.setText(pickupAddress);
-
-        Geocoder geocoder = new Geocoder(this);
-        List<Address> addressList;
-        try {
-            addressList = geocoder.getFromLocationName(pickupAddress,1 );
-            if (!addressList.isEmpty()){
-                destinationLat = addressList.get(0).getLatitude();
-                destinationLong = addressList.get(0).getLongitude();
-            }
-            else{
-                Toast.makeText(this, "Unable to convert to long and lat", Toast.LENGTH_SHORT).show();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(mAuth.getCurrentUser() != null) {
-            String userId = mAuth.getCurrentUser().getUid();
-            DocumentReference documentReference = db.collection("users").document(userId);
-            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                    String compareName = documentSnapshot.getString("fullName");
-                    if (compareName.equals(donatorName)) {
-                        //USER
-                        editBtn.setVisibility(View.VISIBLE);
-                        deleteBtn.setVisibility(View.VISIBLE);
-
-                    }
-                    else{
-                        editBtn.setVisibility(View.GONE);
-                        deleteBtn.setVisibility(View.GONE);
-                    }
-                }
-            });
-        }
+        enableButtons(editBtn, deleteBtn);
 
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,6 +109,7 @@ public class DonationDetails extends AppCompatActivity {
             }
         });
 
+        getDesCoordinates();
         navigateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -168,5 +118,67 @@ public class DonationDetails extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void getDesCoordinates() {
+        Geocoder geocoder = new Geocoder(this);
+        List<Address> addressList;
+        try {
+            addressList = geocoder.getFromLocationName(pickupAddress,1 );
+            if (!addressList.isEmpty()){
+                destinationLat = addressList.get(0).getLatitude();
+                destinationLong = addressList.get(0).getLongitude();
+            }
+            else{
+                Toast.makeText(this, "Unable to convert to long and lat", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void enableButtons(Button editBtn, Button deleteBtn) {
+        if(mAuth.getCurrentUser() != null) {
+            String userId = mAuth.getCurrentUser().getUid();
+            DocumentReference documentReference = db.collection("users").document(userId);
+            documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    String compareName = documentSnapshot.getString("fullName");
+                    if (compareName.equals(donatorName)) {
+                        //USER
+                        editBtn.setVisibility(View.VISIBLE);
+                        deleteBtn.setVisibility(View.VISIBLE);
+
+                    }
+                    else{
+                        editBtn.setVisibility(View.GONE);
+                        deleteBtn.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }
+    }
+
+
+    private void loadIntent(TextView title, TextView name, TextView phone, TextView quantity, TextView condition, TextView address, ImageView imageItem) {
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        pickupAddress = bundle.getString("address");
+        productCondition = bundle.getString("condition");
+        donatorName = bundle.getString("donatorName");
+        donatorPhone = bundle.getString("donatorPhone");
+        productTitle = bundle.getString("productTitle");
+        productQuantity = bundle.getString("quantity");
+        imageUrL = bundle.getString("imageUrL");
+        itemId = bundle.getString("id");
+
+        Picasso.get().load(imageUrL).into(imageItem);
+        title.setText(productTitle);
+        name.setText(donatorName);
+        phone.setText(donatorPhone);
+        quantity.setText(productQuantity);
+        condition.setText(productCondition);
+        address.setText(pickupAddress);
     }
 }

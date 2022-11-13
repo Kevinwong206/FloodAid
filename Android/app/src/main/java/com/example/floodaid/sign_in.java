@@ -2,12 +2,14 @@ package com.example.floodaid;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,6 +17,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 
 public class sign_in extends AppCompatActivity {
@@ -50,46 +56,56 @@ public class sign_in extends AppCompatActivity {
                 String email = mEmail.getText().toString().trim();
                 String pass = mPass.getText().toString().trim();
 
-                //EMAIL
-                if(TextUtils.isEmpty (email)){
-                    mEmail.setError("Email cannot be empty");
-                }else if(!email.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")){
-                    mEmail.setError("Email format incorrect");
-                }
-                else{
-                    emailPassed = true;
-                    mEmail.setError(null);
-                }
-
-                //PASSWORD
-                if(TextUtils.isEmpty (pass)){
-                    mPass.setError("Password cannot be empty");
-
-                }else if(!(!pass.matches("[a-zA-Z]+") && !pass.matches("[0-9]+"))) {
-                    mPass.setError("Password must contain alphabet and integer");
-                }else if((pass.length() < 8)){
-                    mPass.setError("Password must contain at least 8 characters");
-                }
-                else{
-                    passpassed = true;
-                    mPass.setError(null);
-                }
-
-                if(passpassed == true && emailPassed == true){
-                    fAuth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if(task.isSuccessful()){
-                                Toast.makeText(sign_in.this, "Log In Successful", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                            }else{
-                                Toast.makeText(sign_in.this, "Error, " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
+                validateEmail(email);
+                validatePassword(pass);
+                validateSignIn(email,pass);
             }
         });
+    }
+
+    void validateEmail(String email) {
+        //EMAIL
+        if(TextUtils.isEmpty (email)){
+            mEmail.setError("Email cannot be empty");
+        }else if(!email.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$")){
+            mEmail.setError("Email format incorrect");
+        }
+        else{
+            emailPassed = true;
+            mEmail.setError(null);
+        }
+    }
+
+    void validatePassword(String pass) {
+        //PASSWORD
+        if(TextUtils.isEmpty (pass)){
+            mPass.setError("Password cannot be empty");
+
+        }else if(!(!pass.matches("[a-zA-Z]+") && !pass.matches("[0-9]+"))) {
+            mPass.setError("Password must contain alphabet and integer");
+        }else if((pass.length() < 8)){
+            mPass.setError("Password must contain at least 8 characters");
+        }
+        else{
+            passpassed = true;
+            mPass.setError(null);
+        }
+    }
+
+    void validateSignIn(String email, String pass) {
+        if(passpassed == true && emailPassed == true){
+            fAuth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if(task.isSuccessful()){
+                        Toast.makeText(sign_in.this, "Log In Successful", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                    }else{
+                        Toast.makeText(sign_in.this, "Error, " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     @Override

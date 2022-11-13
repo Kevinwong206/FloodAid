@@ -68,14 +68,40 @@ public class EmergencyShelterFragment extends Fragment {
         mEmergencyShelterAdapter = new EmergencyShelterAdapter(getContext(),shelterArrayList);
 
         rvShelter.setAdapter(mEmergencyShelterAdapter);
-        EventChangeListener ();
+        reloadSheter ();
+        sortDistance ();
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 shelterArrayList.clear();
-                EventChangeListener ();
+                reloadSheter ();
                 swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        enableFloatBtn (floatBtn);
+
+        floatBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(view.getContext(), add_emergency_shelter.class);
+                startActivity(i);
+            }
+        });
+
+        //recycler view change based on search result
+        searchView.clearFocus();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                filterListName(s);
+                return false;
             }
         });
 
@@ -93,6 +119,10 @@ public class EmergencyShelterFragment extends Fragment {
             }
         });
 
+        return view;
+    }
+
+    private void enableFloatBtn(FloatingActionButton floatBtn) {
         if(mAuth.getCurrentUser() != null) {
             String userId = mAuth.getCurrentUser().getUid();
             DocumentReference documentReference = db.collection("users").document(userId);
@@ -111,14 +141,9 @@ public class EmergencyShelterFragment extends Fragment {
                 }
             });
         }
-        floatBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(view.getContext(), add_emergency_shelter.class);
-                startActivity(i);
-            }
-        });
+    }
 
+    private void sortDistance() {
         btnSort.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -146,12 +171,19 @@ public class EmergencyShelterFragment extends Fragment {
                 });
             }
         });
-
-        return view;
     }
 
-    private void EventChangeListener() {
+    public static Comparator<EmergencyShelterGetter> distanceComparator = new Comparator<EmergencyShelterGetter>() {
+        @Override
+        public int compare(EmergencyShelterGetter p1, EmergencyShelterGetter p2) {
 
+            Double d1 = Double.parseDouble(p1.getDistance());
+            Double d2 = Double.parseDouble(p2.getDistance());
+            return Double.compare(d1, d2);
+        }
+    };
+
+    private void reloadSheter() {
         db.collection("emergencyShelter").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -174,13 +206,18 @@ public class EmergencyShelterFragment extends Fragment {
         });
     }
 
-    public static Comparator<EmergencyShelterGetter> distanceComparator = new Comparator<EmergencyShelterGetter>() {
-        @Override
-        public int compare(EmergencyShelterGetter p1, EmergencyShelterGetter p2) {
-
-            Double d1 = Double.parseDouble(p1.getDistance());
-            Double d2 = Double.parseDouble(p2.getDistance());
-            return Double.compare(d1, d2);
+    private void filterListName(String s) {
+        ArrayList<EmergencyShelterGetter> filteredContact = new ArrayList<>();
+        for(EmergencyShelterGetter item: shelterArrayList){
+            if(item.getShelterName().toLowerCase().contains(s.toLowerCase())){
+                filteredContact.add(item);
+            }
         }
-    };
+        if (filteredContact.isEmpty()){
+            Toast.makeText(getContext(), "No Data Found", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            mEmergencyShelterAdapter.setFilteredList(filteredContact);
+        }
+    }
 }

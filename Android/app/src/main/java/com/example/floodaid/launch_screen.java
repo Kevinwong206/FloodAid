@@ -1,6 +1,10 @@
 package com.example.floodaid;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -15,6 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.os.Handler;
 import android.view.View;
@@ -27,7 +33,7 @@ public class launch_screen extends AppCompatActivity {
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
     TextView msg;
-    String userId, userPrivilege;
+    String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +48,28 @@ public class launch_screen extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         fStore=FirebaseFirestore.getInstance();
 
+        enableButtons();
+
+        signIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (launch_screen.this, sign_in.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        signUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (launch_screen.this, sign_up.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    void enableButtons() {
         if(fAuth.getCurrentUser() != null){
             signIn.setEnabled(false);
             signUp.setEnabled(false);
@@ -67,46 +95,5 @@ public class launch_screen extends AppCompatActivity {
             signIn.setEnabled(true);
             signUp.setEnabled(true);
         }
-
-        signIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent (launch_screen.this, sign_in.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        signUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent (launch_screen.this, sign_up.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        //logOut.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-        //        FirebaseAuth.getInstance().signOut();
-        //        startActivity(new Intent(getApplicationContext(), launch_screen.class));
-        //        finish();
-        //    }
-        //});
-
-        //display a loading screen for 2 second
-        //Handler handler = new Handler();
-        //handler.postDelayed(new Runnable() {
-        //    @Override
-        //    public void run() {
-        //        startActivity(new Intent(launch_screen.this, MainActivity.class));
-        //        finish();
-        //    }
-        //},2000);
-
-
-
-
     }
 }
