@@ -28,52 +28,96 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 int compareAddtionMin, compareBeforeMin, counter, tempMin, tempHour, compareAddtionHour, compareBeforeHour,hourDelay = 0;
 unsigned long epochTime;
-int minDelay = 2;
+int minDelay = 5;
 String newSeconds, newMinutes;
 String API_Key = "520ca72125ec356abc3a03a92aac5094";
-int tempDistance;
-String tempWeather;
+float tempDistance;
+String sensorData[5];
+
+String weatherId ;
+String weatherDesc ;
+String cityName ;
+float wind_speed ;
+int wind_degree ;
 
 void setup() {
   Serial.begin(9600);
-
-  //---------------------------------------------------CONNECT WIFI--------------------------------------------------
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Connecting to WIFI");
-  while (WiFi.status() != WL_CONNECTED){
-    delay(500);
-  }
-  Serial.println("Wifi Connected\n");
-
-  //-----------------------------------------------DATE AND TIME----------------------------------------------
+  //-----------------------------------------------CONNECT WIFI----------------------------------------------
+  connectWifi();
+  //-----------------------------------------------CONNECT TIME----------------------------------------------
   timeClient.begin();
-
   //-----------------------------------------------CONNECT ARDUINO-------------------------------------------
   Serial.println("Connecting with Arduino");
   SafeString::setOutput(Serial); // enable error messages and debugging
-  softSerial.begin(9600); // use previous rxPin, txPin and set 256 RX buffer
-  coms.setAsController(); // Always choose the SoftwareSerial Side as the controller
-
+  softSerial.begin(9600); 
+  coms.setAsController(); 
   if (!coms.connect(softSerial)) {
     while (1) {
       Serial.println(F("Unable to connect with Arduino\n"));
     }
   }
   Serial.println(F("Arduino Connected\n"));
-    
-  //---------------------------------------------------FIREBASE-------------------------------------------
+  //---------------------------------------------CONNECT FIREBASE-------------------------------------------
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-
 }
 
 void loop() {
   //-------------------------------------------RECEIVE DATA FROM ARDUINO---------------------------------
   coms.sendAndReceive(); 
-  
   // If receive data from arduino
   if (!coms.textReceived.isEmpty()) { 
-    String sensorData[5]; // Modify based on number of sensors
-    int StringCount = 0;
+
+    receiveData();
+    checkGPSCoordinates();
+    getWeather();
+    uploadRealTime();
+    Serial.println();
+
+    //-------------------------------------------FIRST TIME RUN-----------------------------------------
+    if (counter == 0){
+      timeClient.update();
+      IncreaseTime();
+      //Date
+      String currentDate = getCurrentDate();
+      //Time
+      String currentTime = getCurrentTime();
+
+      uploadScheduledData(currentDate,currentTime);
+    }
+
+    //-------------------------------------------UPDATE TIME-----------------------------------------
+    counter++;
+    timeClient.update();
+    compareBeforeMin = timeClient.getMinutes();
+    compareBeforeHour = timeClient.getHours();
+
+    //----------------------------------------UPLOAD AFTER DELAY-----------------------------------------
+    if(compareBeforeMin == compareAddtionMin && compareBeforeHour == compareAddtionHour){
+      IncreaseTime();
+
+      //Date
+      String currentDate = getCurrentDate();
+      //Time
+      String currentTime = getCurrentTime();
+      
+      uploadScheduledData(currentDate,currentTime);
+    }
+  }
+}
+
+void connectWifi(){
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to WIFI");
+  while (WiFi.status() != WL_CONNECTED){
+    Serial.println("Not Connected to Wifi\n");
+    delay(500);
+  }
+  if (WiFi.status() == WL_CONNECTED)
+    Serial.println("Wifi Connected\n");
+}
+
+void receiveData(){
+  int StringCount = 0;
     combineData = coms.textReceived.c_str();
     
     //Split string to array
@@ -92,26 +136,27 @@ void loop() {
     }
     
     temperature=String(sensorData[0]);
-    Serial.println("Temperature = " + temperature);
+    //Serial.println("Temperature = " + temperature);
     humidity=String(sensorData[1]);
-    Serial.println("Humidity = " + humidity);
+    //Serial.println("Humidity = " + humidity);
     distance=String(sensorData[2]);
-    Serial.println("Distance = " + distance);
+    //Serial.println("Distance = " + distance);
     gpsLat=String(sensorData[3]);
-    Serial.println("Latitude = " + gpsLat);
+    //Serial.println("Latitude = " + gpsLat);
     gpsLong=String(sensorData[4]);
-    Serial.println("Longtitude = " + gpsLong);
+    //Serial.println("Longtitude = " + gpsLong);
+}
 
-    //If no GPS data, will use last updated location
-    if(gpsLat== "0.00" && gpsLong== "0.00"){
-      gpsLat = Firebase.getString("RealTimeData/data/Latitude");
-      gpsLong = Firebase.getString("RealTimeData/data/Longtitude");
-      Serial.println("New Latitude = " + gpsLat);
-      Serial.println("New Longtitude = " + gpsLong);
-    }
+void checkGPSCoordinates(){
+  //If no GPS data, will use last updated location
+  if(gpsLat== "0.00" && gpsLong== "0.00"){
+    gpsLat = Firebase.getString("RealTimeData/Latitude");
+    gpsLong = Firebase.getString("RealTimeData/Longtitude");
+  }
+}
 
-    //Get Weather data based on location
-    if (WiFi.status() == WL_CONNECTED) //Check WiFi connection status
+void getWeather(){
+  if (WiFi.status() == WL_CONNECTED) //Check WiFi connection status
     {
       HTTPClient http; //Declare an object of class HTTPClient
       http.begin("http://api.openweathermap.org/data/2.5/weather?lat=" + gpsLat + "&lon=" + gpsLong + "&lon=" + "&appid=" + API_Key +"&units=metric"); // !!
@@ -130,224 +175,153 @@ void loop() {
           return;
         }
         JsonObject& weather = root["weather"][0];
-        String weatherId = weather["id"];
-        String weatherDesc = weather["description"]; 
-        String cityName = root["name"]; 
-        float wind_speed = root["wind"]["speed"]; // get wind speed in m/s
-        int wind_degree = root["wind"]["deg"]; // get wind degree in °
-        
-        // print data
-        Serial.println(weatherId);
-        Serial.println(weatherDesc);
-        Serial.println("city name = " + cityName);
-        Serial.printf("Wind speed = %.1f m/s\r\n", wind_speed);
-        Serial.printf("Wind degree = %d°\r\n\r\n", wind_degree);
-        
-        //REAL TIME
-        Firebase.setString("RealTimeData/data/WeatherID",weatherId);
-        Firebase.setString("RealTimeData/data/WeatherDesc",weatherDesc);
-        Firebase.setString("RealTimeData/data/CityName",cityName);
-        String temp_wind_speed = String(wind_speed);
-        String temp_wind_degree = String(wind_degree);
-        Firebase.setString("RealTimeData/data/WindSpeed",temp_wind_speed);
-        Firebase.setString("RealTimeData/data/WindDegree",temp_wind_degree);
+        String temp_weatherId = weather["id"];
+        String temp_weatherDesc = weather["description"]; 
+        String temp_cityName = root["name"]; 
+        float temp_wind_speed = root["wind"]["speed"]; // get wind speed in m/s
+        int temp_wind_degree = root["wind"]["deg"]; // get wind degree in °
 
-        tempWeather = weatherDesc;
+        weatherId = temp_weatherId;
+        weatherDesc = temp_weatherDesc; 
+        cityName = temp_cityName;
+        wind_speed = temp_wind_speed;
+        wind_degree = temp_wind_degree;
       }
       http.end(); //Close connection
     }
+}
 
-    //REAL TIME
-    Firebase.setString("RealTimeData/data/Humidity",humidity);
-    Firebase.setString("RealTimeData/data/Temperature",temperature);
-    Firebase.setString("RealTimeData/data/Distance",distance);
-    Firebase.setString("RealTimeData/data/Latitude",gpsLat);
-    Firebase.setString("RealTimeData/data/Longtitude",gpsLong);
+void uploadRealTime(){
+  Firebase.setString("RealTimeData/WeatherID",weatherId);
+    Firebase.setString("RealTimeData/WeatherDesc",weatherDesc);
+    Firebase.setString("RealTimeData/CityName",cityName);
+    String convert_wind_speed = String(wind_speed);
+    String convert_wind_degree = String(wind_degree);
+    Firebase.setString("RealTimeData/WindSpeed",convert_wind_speed);
+    Firebase.setString("RealTimeData/WindDegree",convert_wind_degree);
+    Firebase.setString("RealTimeData/Humidity",humidity);
+    Firebase.setString("RealTimeData/Temperature",temperature);
+    Firebase.setString("RealTimeData/WaterLevel",distance);
+    //Firebase.setString("RealTimeData/Latitude",gpsLat);
+    //Firebase.setString("RealTimeData/Longtitude",gpsLong);
+
+    Serial.println("----Uploaded real-time Sensor Data----");
     
-
-    Serial.println();
-
-    //-------------------------------------------FIRST TIME RUN-----------------------------------------
-    if (counter == 0){
-      //------------------------------------------------------------------UPDATE ADDITION (Calculate time after delay)
-      timeClient.update();
-      tempMin = timeClient.getMinutes();
-      tempHour = timeClient.getHours();
-      compareAddtionMin = tempMin+minDelay;
-      compareAddtionHour = tempHour;
-      
-      if(compareAddtionMin>59){
-        hourDelay=compareAddtionMin/60;
-        compareAddtionMin == compareAddtionMin%60;
-        compareAddtionHour=compareAddtionHour+hourDelay;
-      }
-      //Date
-      unsigned long epochTime = timeClient.getEpochTime();
-      struct tm *ptm = gmtime ((time_t *)&epochTime);
-      int monthDay = ptm->tm_mday;
-      int currentMonth = ptm->tm_mon+1;
-      int currentYear = ptm->tm_year+1900;
-      String currentDate = String(monthDay) + "-" + String(currentMonth) + "-" + String(currentYear);
-      //Time
-      int hour = timeClient.getHours();
-      int minute = timeClient.getMinutes();
-      if (minute<10)
-        newMinutes = "0"+String(minute);
-      else
-        newMinutes = String(minute);
-        
-      int second = timeClient.getSeconds();
-      if (second<10)
-        newSeconds = "0"+String(second);
-      else
-        newSeconds = String(second);
-      
-      String currentTime = String(hour) + ":" + newMinutes + ":" + newSeconds;
-
-    //-------------------------------------------FIREBASE BASED ON DATE AND TIME----------------------------------------------      
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Distance",distance);
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/WeatherDesc",tempWeather);
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Date",currentDate);
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Time",currentTime);
-      
-      int tempNumData;
-      
-      Firebase.setString("DataHistory/"+currentDate+"/Date",currentDate);
-      Firebase.setString("DataHistory/"+currentDate+"/LastUpdated",currentTime);
-
-      String numDataString = Firebase.getString("DataHistory/"+currentDate+"/NumData");
-      if(numDataString.equals("")){
-        tempNumData = 1;
-      }else{
-        tempNumData = numDataString.toInt();
-        tempNumData = tempNumData+1;
-      }
-      
-      Firebase.setString("DataHistory/"+currentDate+"/NumData",String(tempNumData));
+   if (Firebase.failed()){
+    Serial.println("error uploading to realtime database");
+    Serial.println (Firebase.error());
+    return;
+  }
+}
 
 
-      int tempId;
-      int compareId;
-      tempDistance = distance.toInt();
-      if(tempDistance>0 && tempDistance <=5){
-        tempId = 4;
-      }else if (tempDistance>5 && tempDistance <=10){
-        tempId = 3;
-      }else if (tempDistance>10 && tempDistance <=15){
-        tempId = 2;
-      }else{
-        tempId = 1;
-      }
-      String idString = Firebase.getString("DataHistory/"+currentDate+"/SevereId");
-      if(idString.equals("")){
-        compareId = 0;
-      }else{
-        compareId = idString.toInt();
-      }
+String getCurrentDate(){
+  unsigned long epochTime = timeClient.getEpochTime();
+  struct tm *ptm = gmtime ((time_t *)&epochTime);
+  int monthDay = ptm->tm_mday;
+  int currentMonth = ptm->tm_mon+1;
+  int currentYear = ptm->tm_year+1900;
+  String testDate = String(monthDay) + "-" + String(currentMonth) + "-" + String(currentYear);
+  return testDate;
+}
 
-      if(tempId>compareId){
-        Firebase.setString("DataHistory/"+currentDate+"/SevereId",String(tempId));
-      }
-      
-      Serial.println("Data uploaded to firebase");
+String getCurrentTime(){
+  int hour = timeClient.getHours();
+  int minute = timeClient.getMinutes();
+  if (minute<10)
+    newMinutes = "0"+String(minute);
+  else
+    newMinutes = String(minute);
     
-      if (Firebase.failed()){
-        Serial.println("error");
-        Serial.println (Firebase.error());
-        return;
-      }
-    }
-    
-    counter++;
-    //--------------------------------------------------------------------------------UPDATE BEFORE (Current Time)
-    timeClient.update();
-    compareBeforeMin = timeClient.getMinutes();
-    compareBeforeHour = timeClient.getHours();
+  int second = timeClient.getSeconds();
+  if (second<10)
+    newSeconds = "0"+String(second);
+  else
+    newSeconds = String(second);
+  
+  String currentTime = String(hour) + ":" + newMinutes + ":" + newSeconds;
+  return currentTime;
+}
 
-    //----------------------------------------------------------------------------------------UPLOAD DATA AFTER DELAY
-    if(compareBeforeMin == compareAddtionMin && compareBeforeHour == compareAddtionHour){
-      //----------------------------------------------------------UPDATE ADDITION (Calculate next time after delay)
-      tempMin = timeClient.getMinutes();
-      tempHour = timeClient.getHours();
-      compareAddtionMin = tempMin+minDelay;
-      compareAddtionHour = tempHour;
-      
-      if(compareAddtionMin>59){
-        hourDelay=compareAddtionMin/60;
-        compareAddtionMin == compareAddtionMin%60;
-        compareAddtionHour=compareAddtionHour+hourDelay;
-      }
+void IncreaseTime(){
+  tempMin = timeClient.getMinutes();
+  tempHour = timeClient.getHours();
+  compareAddtionMin = tempMin+minDelay;
+  compareAddtionHour = tempHour;
+  
+  if(compareAddtionMin>59){
+    compareAddtionMin = compareAddtionMin%60;
+    compareAddtionHour = compareAddtionHour+1;
+  }
+}
 
-      //Date
-      unsigned long epochTime = timeClient.getEpochTime();
-      struct tm *ptm = gmtime ((time_t *)&epochTime);
-      int monthDay = ptm->tm_mday;
-      int currentMonth = ptm->tm_mon+1;
-      int currentYear = ptm->tm_year+1900;
-      String currentDate = String(monthDay) + "-" + String(currentMonth) + "-" + String(currentYear);
-      //Time
-      int hour = timeClient.getHours();
-      int minute = timeClient.getMinutes();
-      if (minute<10)
-        newMinutes = "0"+String(minute);
-      else
-        newMinutes = String(minute);
-        
-      int second = timeClient.getSeconds();
-      if (second<10)
-        newSeconds = "0"+String(second);
-      else
-        newSeconds = String(second);
-      
-      String currentTime = String(hour) + ":" + newMinutes + ":" + newSeconds;
+void uploadScheduledData(String currentDate, String currentTime){
+  Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/WaterLevel",distance);
+  Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/WeatherDesc",weatherDesc);
+  Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Date",currentDate);
+  Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Time",currentTime);
+  
+ 
+  Firebase.setString("DateDetails/"+currentDate+"/LastDate",currentDate);
+  Firebase.setString("DateDetails/"+currentDate+"/LastTime",currentTime);
 
-    //-------------------------------------------FIREBASE BASED ON DATE AND TIME AFTER DELAY----------------------------------------------
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Distance",distance);
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/WeatherDesc",tempWeather);
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Date",currentDate);
-      Firebase.setString("SensorData/"+currentDate+"/"+currentTime+"/Time",currentTime);
-      
-      Firebase.setString("DataHistory/"+currentDate+"/LastUpdated",currentTime);
-      String numDataString = Firebase.getString("DataHistory/"+currentDate+"/NumData");
-      int tempNumData;
-      if(numDataString.equals("")){
-        tempNumData = 1;
-      }else{
-        tempNumData = numDataString.toInt();
-        tempNumData = tempNumData+1;
-      }
-      Firebase.setString("DataHistory/"+currentDate+"/NumData",String(tempNumData));
+  int numData = getNumData(currentDate);
+  Firebase.setString("DateDetails/"+currentDate+"/NumData",String(numData));
+
+  int dangerousID = getDangerousID(distance, currentDate);
+  Firebase.setString("DateDetails/"+currentDate+"/DangerousStage",String(dangerousID));
+
+  Serial.println("----Uploaded Scheduled Sensor Data----\n");
+
+  if (Firebase.failed()){
+    Serial.println("error uploading to firestore");
+    Serial.println (Firebase.error());
+    return;
+  }
+}
+
+int getNumData(String currentDate){
+  int tempNumData;
+  String numDataString = Firebase.getString("DateDetails/"+currentDate+"/NumData");
+  if(numDataString.equals("")){
+    tempNumData = 1;
+  }else{
+    tempNumData = numDataString.toInt();
+    tempNumData = tempNumData+1;
+  }
+
+  return tempNumData;
+}
 
 
-      int tempId;
-      int compareId;
-      tempDistance = distance.toInt();
-      if(tempDistance>0 && tempDistance <=5){
-        tempId = 4;//Dangerous
-      }else if (tempDistance>5 && tempDistance <=10){
-        tempId = 3; //Warning
-      }else if (tempDistance>10 && tempDistance <=15){
-        tempId = 2; //Alert
-      }else{
-        tempId = 1; //Normal
-      }
-      String idString = Firebase.getString("DataHistory/"+currentDate+"/SevereId");
-      if(idString.equals("")){
-        compareId = 0;
-      }else{
-        compareId = idString.toInt();
-      }
+int getDangerousID(String distance, String currentDate){
+  int tempId;
+  int compareId;
+  //Get current
+  tempDistance = distance.toFloat();
+  if(tempDistance>=17){
+    tempId = 4;//Danger
+  }else if (tempDistance>=16 && tempDistance <17){
+    tempId = 3; //Warning
+  }else if (tempDistance>=14 && tempDistance <16){
+    tempId = 2; //Alert
+  }else{
+    tempId = 1; //Normal
+  }
 
-      if(tempId>compareId){
-        Firebase.setString("DataHistory/"+currentDate+"/SevereId",String(tempId));
-      }
-      Serial.println("Data uploaded to firebase");
-    
-      if (Firebase.failed()){
-        Serial.println("error");
-        Serial.println (Firebase.error());
-        return;
-      }
-    }
+  //Get last 
+  String idString = Firebase.getString("DateDetails/"+currentDate+"/DangerousStage");
+  if(idString.equals("")){
+    compareId = 0;
+  }else{
+    compareId = idString.toInt();
+  }
+
+  //compare
+  if(tempId>compareId){
+    return tempId;
+  }
+  else{
+    return compareId;
   }
 }
