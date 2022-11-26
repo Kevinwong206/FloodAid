@@ -202,8 +202,8 @@ void uploadRealTime(){
     Firebase.setString("RealTimeData/Humidity",humidity);
     Firebase.setString("RealTimeData/Temperature",temperature);
     Firebase.setString("RealTimeData/WaterLevel",distance);
-    //Firebase.setString("RealTimeData/Latitude",gpsLat);
-    //Firebase.setString("RealTimeData/Longtitude",gpsLong);
+    Firebase.setString("RealTimeData/Latitude",gpsLat);
+    Firebase.setString("RealTimeData/Longtitude",gpsLong);
 
     Serial.println("----Uploaded real-time Sensor Data----");
     
